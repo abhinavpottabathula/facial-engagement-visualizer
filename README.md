@@ -1,5 +1,5 @@
-# neuroscape-visualizations
-Frontend React Client to visualize real-time data streams from various modalities.
+# facial-engagement-visualizer
+Frontend React Client to visualize real-time data inference of facial webcam feed.
 
 Install node modules: 
 `cd server && npm install`
