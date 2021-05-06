@@ -167,12 +167,8 @@ const Webcam = () => {
           .then(res => res.json())
           .then(res => {
             const {angry, disgust, fear, happy, sad, surprise, neutral, emotionLayout} = state;
-            console.log(res)
-            // angry, disgust, fear, happy, sad, surprise, neutral
-            // var curScore = parseFloat(res['score']);
             var curTime = parseInt(res['timestamp']);
-            // {'emotion': {'angry': 0.0009087547195010315, 'disgust': 1.1021758579751944e-09, 'fear': 6.784635155360594e-07, 'happy': 76.04783462907855, 'sad': 0.002571880816411465, 'surprise': 0.0024791463829872784, 'neutral': 23.94620192692257}, 'dominant_emotion': 'happy'}
-
+            
             if (curTime != -1) {
                 var i = angry.x.length - 1;
                 while (i >= 0 && angry.x[i] > curTime) {
@@ -229,7 +225,6 @@ const Webcam = () => {
           .then(res => res.json())
           .then(res => {
             const {boredom, engagement, confusion, frustration, engagementLayout} = state;
-            console.log(res)
             var curTime = parseInt(res['timestamp']);
             
             if (curTime != -1) {
@@ -277,7 +272,6 @@ const Webcam = () => {
         .then(res => res.json())
         .then(res => {
             const {heatmap, heatmapLayout} = state;
-            console.log(res)
             heatmap.z = res['data']
             state.revision = state.revision + 1;
             heatmapLayout.datarevision = state.revision + 1;
