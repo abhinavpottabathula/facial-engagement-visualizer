@@ -5,6 +5,16 @@ const SAMPLING_RATE = 5000; // Calculate engagement score every 5 seconds
 
 const Webcam = () => {
     var state = {
+        heatmap: {
+            type: 'heatmap',
+            z: [[1, 20, 30], [20, 1, 60], [30, 60, 1]],
+            name: 'eyegaze',
+        },
+        heatmapLayout: { 
+            xaxis:{title: 'X Axis (Pixels)'},
+            yaxis:{title: 'Y Axis (Pixels)'},
+            datarevision: 0,
+        },
         angry: {
             x: [],
             y: [], 
@@ -61,7 +71,8 @@ const Webcam = () => {
     const videoRef = useRef(null);
     const photoRef = useRef(null);
     const stripRef = useRef(null);
-    const [plot, updatePlot] = useState(null);
+    const [emotionsPlot, updateEmotionsPlot] = useState(null);
+    const [eyeGazeHeatmap, updateEyeGazeHeatmap] = useState(null);
 
     useEffect(() => {
         getVideo();
@@ -94,7 +105,8 @@ const Webcam = () => {
             ctx.drawImage(video, 0, 0, width, height);
             var img = ctx.getImageData(0, 0, width, height).data;
             img = Array.from(img)
-            getScore(JSON.stringify(img));
+            getEmotionScore(JSON.stringify(img));
+            getEyeGazeHeatmap(JSON.stringify(img));
         }, SAMPLING_RATE);
     };
 
@@ -114,8 +126,8 @@ const Webcam = () => {
         strip.insertBefore(link, strip.firstChild);
     };
 
-    function getScore(img) {
-        fetch("http://localhost:5000/getScore", {
+    function getEmotionScore(img) {
+        fetch("http://localhost:5000/getEmotionScore", {
             crossDomain:true,
             method: 'POST',
             headers: {'Content-Type':'application/json'},
@@ -166,13 +178,37 @@ const Webcam = () => {
             state.revision = state.revision + 1;
             layout.datarevision = state.revision + 1;
         });
-        updatePlot(<Plot
+        updateEmotionsPlot(<Plot
             data={[
                 state.angry, state.disgust, state.fear, state.happy, state.sad, state.surprise, state.neutral
             ]}
             layout={state.layout}
             revision={state.revision}
             graphDiv="graph"
+        />)
+    };
+    
+
+    function getEyeGazeHeatmap(img) {
+        fetch("http://localhost:5000/getEyeGazeHeatmap", {
+            crossDomain:true,
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: img,
+        })
+        .then(res => res.json())
+        .then(res => {
+            const {heatmap, heatmapLayout} = state;
+            console.log(res)
+            heatmap.z = res['data']
+            state.revision = state.revision + 1;
+            heatmapLayout.datarevision = state.revision + 1;
+        });
+        updateEyeGazeHeatmap(<Plot
+            data={[state.heatmap]}
+            layout={state.heatmapLayout}
+            // revision={state.revision}
+            // graphDiv="graph"
         />)
     }
 
@@ -185,7 +221,8 @@ const Webcam = () => {
             <div>
                 <div ref={stripRef} />
             </div>
-            {plot}
+            {emotionsPlot}
+            {eyeGazeHeatmap}
         </div>
     );
 };
