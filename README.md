@@ -23,16 +23,16 @@ Now you are free to interact with the web app at `http://localhost:3000/`
 ## Models, Datasets, Examples
 
 ### Emotion
-[DeepFace Model](https://pypi.org/project/deepface/)
-[LFW Dataset](https://sefiks.com/2020/08/27/labeled-faces-in-the-wild-for-face-recognition/)
+[DeepFace Model](https://pypi.org/project/deepface/)<br/>
+[LFW Dataset](https://sefiks.com/2020/08/27/labeled-faces-in-the-wild-for-face-recognition/)<br/>
 ![Emotion Plot](https://github.com/abhinavpottabathula/facial-engagement-visualizer/blob/master/dashboard_example_images/emotions.png?raw=true)
 
 ### Engagement
-[Model](https://arxiv.org/abs/1609.01885)
-[Dataset](https://iith.ac.in/~daisee-dataset/)
-[Our Custom Midpoint Dataset](https://drive.google.com/drive/folders/1KQBDLNuSHW25PfT0fpfDISVo12U_iT7o?usp=sharing)
+[Model](https://arxiv.org/abs/1609.01885)<br/>
+[Dataset](https://iith.ac.in/~daisee-dataset/)<br/>
+[Our Custom Midpoint Dataset](https://drive.google.com/drive/folders/1KQBDLNuSHW25PfT0fpfDISVo12U_iT7o?usp=sharing)<br/>
 ![Engagement Plot](https://github.com/abhinavpottabathula/facial-engagement-visualizer/blob/master/dashboard_example_images/engagement.png?raw=true)
 
 ### EyeGaze
-[OpenCV Haarcascades](https://github.com/opencv/opencv/tree/master/data/haarcascades)
+[OpenCV Haarcascades](https://github.com/opencv/opencv/tree/master/data/haarcascades)<br/>
 ![EyeGaze Plot](https://github.com/abhinavpottabathula/facial-engagement-visualizer/blob/master/dashboard_example_images/eye_gaze.png?raw=true)
