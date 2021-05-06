@@ -6,6 +6,9 @@ from PIL import Image
 import numpy as np
 from matplotlib import pyplot as plt
 
+import tensorflow as tf
+import keras
+import tensorflow_hub as hub
 import cv2
 from deepface import DeepFace
 
@@ -14,6 +17,12 @@ app = Flask(__name__)
 CORS(app)
 
 startTime = time.time()
+
+engagement_model = None
+IMAGE_SHAPE = (299, 299)
+NUM_CLASSES = 4
+model_path = './Models/saved_engagement_model_6.h5'
+
 
 @app.route('/getEmotionScore', methods=['POST'])
 def getEmotionScore():
@@ -30,12 +39,19 @@ def getEmotionScore():
 def getEngagementScore():
     data = request.data # width = 320, height = 240, rgba values, reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray
     data = np.array(json.loads(data))
-    data = data.reshape((240, 320, 4)).astype('uint8')
-
-    pred = DeepFace.analyze(data, actions=['emotion'])
+    im = data.reshape((240, 320, 4)).astype('uint8')
+    im = im[:,:,:3]
+    im = cv2.resize(im, IMAGE_SHAPE)
+    im = tf.keras.utils.normalize(im)
+    im = np.array([im])
+    res = engagement_model.predict(im)[0]
+    res = np.maximum(0, res)
+    # res = int(res*100)
+    res = res.astype('float64')
+    pred = {'boredom': res[0], 'engagement': res[1], 'confusion': res[2], 'frustration': res[3]}
     pred['timestamp'] = time.time() - startTime
 
-    return pred
+    return json.dumps(pred)
 
 @app.route('/getEyeGazeHeatmap', methods=['POST'])
 def getEyeGazeHeatmap():
@@ -69,5 +85,22 @@ def getEyeGazeHeatmap():
     pred = json.dumps({'data': data})
     return pred
 
+
+def load_engagement_model():
+    classifier_url = 'https://tfhub.dev/google/imagenet/inception_v3/classification/4'
+    do_fine_tuning = True
+    global engagement_model
+    engagement_model = tf.keras.Sequential([
+        tf.keras.layers.InputLayer(input_shape=IMAGE_SHAPE + (3,)),
+        hub.KerasLayer(classifier_url, trainable=do_fine_tuning),
+        tf.keras.layers.Dropout(rate=0.2),
+        tf.keras.layers.Dense(NUM_CLASSES,
+                            kernel_regularizer=tf.keras.regularizers.l2(0.0001))
+    ])
+    # model.layers[0].trainable = False # <-- keep commented
+    engagement_model.build((None,)+IMAGE_SHAPE+(3,))
+    keras.models.load_model(model_path, custom_objects={'KerasLayer': hub.KerasLayer})
+
 if __name__ == "__main__":
+    load_engagement_model()
     app.run(debug=True)

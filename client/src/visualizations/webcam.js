@@ -5,6 +5,35 @@ const SAMPLING_RATE = 5000; // Calculate engagement score every 5 seconds
 
 const Webcam = () => {
     var state = {
+        boredom: {
+            x: [],
+            y: [], 
+            name: 'boredom',
+            line: {shape: 'spline'}
+        },
+        engagement: {
+            x: [],
+            y: [], 
+            name: 'engagement',
+            line: {shape: 'spline'}
+        },
+        confusion: {
+            x: [],
+            y: [], 
+            name: 'confusion',
+            line: {shape: 'spline'}
+        },
+        frustration: {
+            x: [],
+            y: [], 
+            name: 'frustration',
+            line: {shape: 'spline'}
+        },
+        engagementLayout: { 
+            xaxis:{title: 'Time (s)'},
+            yaxis:{title: 'Engagement (%)'},
+            datarevision: 0,
+        },
         heatmap: {
             type: 'heatmap',
             z: [[1, 20, 30], [20, 1, 60], [30, 60, 1]],
@@ -57,7 +86,7 @@ const Webcam = () => {
             name: 'neutral',
             line: {shape: 'spline'}
         },
-        layout: { 
+        emotionLayout: { 
             xaxis:{title: 'Time (s)'},
             yaxis:{title: 'Emotions (%)'},
             datarevision: 0,
@@ -72,6 +101,7 @@ const Webcam = () => {
     const photoRef = useRef(null);
     const stripRef = useRef(null);
     const [emotionsPlot, updateEmotionsPlot] = useState(null);
+    const [engagementPlot, updateEngagementPlot] = useState(null);
     const [eyeGazeHeatmap, updateEyeGazeHeatmap] = useState(null);
 
     useEffect(() => {
@@ -106,6 +136,7 @@ const Webcam = () => {
             var img = ctx.getImageData(0, 0, width, height).data;
             img = Array.from(img)
             getEmotionScore(JSON.stringify(img));
+            getEngagementScore(JSON.stringify(img));
             getEyeGazeHeatmap(JSON.stringify(img));
         }, SAMPLING_RATE);
     };
@@ -135,7 +166,7 @@ const Webcam = () => {
         })
           .then(res => res.json())
           .then(res => {
-            const {angry, disgust, fear, happy, sad, surprise, neutral, layout} = state;
+            const {angry, disgust, fear, happy, sad, surprise, neutral, emotionLayout} = state;
             console.log(res)
             // angry, disgust, fear, happy, sad, surprise, neutral
             // var curScore = parseFloat(res['score']);
@@ -176,13 +207,60 @@ const Webcam = () => {
                 neutral.line.shape = 'spline';
             }
             state.revision = state.revision + 1;
-            layout.datarevision = state.revision + 1;
+            emotionLayout.datarevision = state.revision + 1;
         });
         updateEmotionsPlot(<Plot
             data={[
                 state.angry, state.disgust, state.fear, state.happy, state.sad, state.surprise, state.neutral
             ]}
-            layout={state.layout}
+            layout={state.emotionLayout}
+            revision={state.revision}
+            graphDiv="graph"
+        />)
+    };
+
+    function getEngagementScore(img) {
+        fetch("http://localhost:5000/getEngagementScore", {
+            crossDomain:true,
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: img,
+        })
+          .then(res => res.json())
+          .then(res => {
+            const {boredom, engagement, confusion, frustration, engagementLayout} = state;
+            console.log(res)
+            var curTime = parseInt(res['timestamp']);
+            
+            if (curTime != -1) {
+                var i = boredom.x.length - 1;
+                while (i >= 0 && boredom.x[i] > curTime) {
+                    i--;
+                }
+                boredom.x.splice(i + 1, 0, curTime);
+                boredom.y.splice(i + 1, 0, parseFloat(res['boredom']));
+                boredom.line.shape = 'spline';
+
+                engagement.x.splice(i + 1, 0, curTime);
+                engagement.y.splice(i + 1, 0, parseFloat(res['engagement']));
+                engagement.line.shape = 'spline';
+
+                confusion.x.splice(i + 1, 0, curTime);
+                confusion.y.splice(i + 1, 0, parseFloat(res['confusion']));
+                confusion.line.shape = 'spline';
+
+                frustration.x.splice(i + 1, 0, curTime);
+                frustration.y.splice(i + 1, 0, parseFloat(res['frustration']));
+                frustration.line.shape = 'spline';
+            }
+            state.revision = state.revision + 1;
+            engagementLayout.datarevision = state.revision + 1;
+        });
+        updateEngagementPlot(<Plot
+            data={[
+                state.boredom, state.engagement, state.confusion, state.frustration
+            ]}
+            layout={state.engagementLayout}
             revision={state.revision}
             graphDiv="graph"
         />)
@@ -207,8 +285,6 @@ const Webcam = () => {
         updateEyeGazeHeatmap(<Plot
             data={[state.heatmap]}
             layout={state.heatmapLayout}
-            // revision={state.revision}
-            // graphDiv="graph"
         />)
     }
 
@@ -221,8 +297,22 @@ const Webcam = () => {
             <div>
                 <div ref={stripRef} />
             </div>
-            {emotionsPlot}
-            {eyeGazeHeatmap}
+
+            <div>
+                <h1>Emotions</h1>
+                {emotionsPlot}
+                
+            </div>
+
+            <div>
+                <h1>Engagement</h1>
+                {engagementPlot}
+            </div>
+
+            <div>
+                <h1>Eye Gaze</h1>
+                {eyeGazeHeatmap}
+            </div>
         </div>
     );
 };
