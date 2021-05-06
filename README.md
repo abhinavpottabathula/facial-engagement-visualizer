@@ -25,14 +25,14 @@ Now you are free to interact with the web app at `http://localhost:3000/`
 ### Emotion
 [DeepFace Model](https://pypi.org/project/deepface/)
 [LFW Dataset](https://sefiks.com/2020/08/27/labeled-faces-in-the-wild-for-face-recognition/)
-![Emotion Plot](https://github.com/abhinavpottabathula/facial-engagement-visualizer/blob/main/dashboard_example_images/emotions.ppg?raw=true)
+![Emotion Plot](https://github.com/abhinavpottabathula/facial-engagement-visualizer/blob/master/dashboard_example_images/emotions.png?raw=true)
 
 ### Engagement
 [Model](https://arxiv.org/abs/1609.01885)
 [Dataset](https://iith.ac.in/~daisee-dataset/)
 [Our Custom Midpoint Dataset](https://drive.google.com/drive/folders/1KQBDLNuSHW25PfT0fpfDISVo12U_iT7o?usp=sharing)
-![Engagement Plot](https://github.com/abhinavpottabathula/facial-engagement-visualizer/blob/main/dashboard_example_images/engagement.ppg?raw=true)
+![Engagement Plot](https://github.com/abhinavpottabathula/facial-engagement-visualizer/blob/master/dashboard_example_images/engagement.png?raw=true)
 
 ### EyeGaze
 [OpenCV Haarcascades](https://github.com/opencv/opencv/tree/master/data/haarcascades)
-![EyeGaze Plot](https://github.com/abhinavpottabathula/facial-engagement-visualizer/blob/main/dashboard_example_images/eye_gaze.ppg?raw=true)
+![EyeGaze Plot](https://github.com/abhinavpottabathula/facial-engagement-visualizer/blob/master/dashboard_example_images/eye_gaze.png?raw=true)
